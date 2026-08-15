@@ -1,8 +1,13 @@
 # step 1 "Initialize the chat model"
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 from langchain.chat_models import init_chat_model
-model = init_chat_model("openai:gpt-4o-mini", )
+model = init_chat_model(
+    "google_genai:gemini-3.6-flash",)
 
 # step2: define your tools 
 from langchain_core.tools import tool
@@ -42,6 +47,16 @@ def power(a: float, b: float) -> float:
     """Calculate a raised to the power of b."""
     return math.pow(a, b)
 
+tools = [
+    add_numbers,
+    multiply_numbers,
+    divide_numbers,
+    subtract_numbers,
+    square_root,
+    power,
+]
+
+
 
 #  step 3 : create the agent 
 
@@ -59,7 +74,20 @@ def run_agent(question: str):
     print(f" user: {question}")
     print("_" * 50)
     result = agent.invoke({
-        "message": [("user", question)]
+        "messages": [("user", question)]
     })
     
-    print("agent: {result}")
+    print(f"agent: {result}")
+    
+    
+    # Simple: single tool call
+run_agent("What is 42 + 58?")
+
+# Medium: multiple tool calls in sequence
+run_agent("What is 15 multiplied by 8, then divided by 3?")
+
+# Complex: the agent must plan a multi-step approach
+run_agent(
+    "I have a rectangle with width 12 and height 7. "
+    "What is its area, and what is the square root of that area?"
+)
